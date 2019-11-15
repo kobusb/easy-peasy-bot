@@ -52,8 +52,10 @@ if (process.env.TOKEN || process.env.SLACK_TOKEN) {
     var app = require('./lib/apps');
     var controller = app.configure(process.env.PORT, process.env.CLIENT_ID, process.env.CLIENT_SECRET, config, onInstallation);
 } else {
-    console.log('Error: If this is a custom integration, please specify TOKEN in the environment. If this is an app, please specify CLIENTID, CLIENTSECRET, and PORT in the environment');
-    process.exit(1);
+    //Treat this as an app
+    var app = require('./lib/apps');
+    process.env.PORT = 8765;
+    var controller = app.configure('8765', '2183723934.836480862343', '104fac8163ae4e1b40c1c845082f1f06', config, onInstallation);
 }
 
 
@@ -85,8 +87,14 @@ controller.on('bot_channel_join', function (bot, message) {
     bot.reply(message, "I'm here!")
 });
 
-controller.hears('hello', 'direct_message', function (bot, message) {
-    bot.reply(message, 'Hello!');
+controller.hears(['hello', 'hi', 'greetings'], ['direct_mention', 'mention', 'direct_message'], async function(bot,message) {
+    bot.reply(message, 'Hello Kobus and Stacey!');
+
+    let channelId = 'C3MD909B2';
+    bot.api.channels.info({channel: channelId}, function(err, res) {
+        if (err) console.log('ERR:',err)
+        else console.log('============CHANNELS LIST INFO:\n', res)
+    })
 });
 
 
